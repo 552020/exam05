@@ -1,9 +1,9 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include "ASpell.hpp"
 #include "ATarget.hpp"
+#include "SpellBook.hpp"
 
 class Warlock
 {
@@ -25,10 +25,17 @@ class Warlock
 		Warlock &operator=(const Warlock &other);
 		std::string _name;
 		std::string _title;
-		std::vector<ASpell *> _spells;
+		SpellBook _spellBook;
 };
 
 /*
+
+1. Modify the Warlock, now, make it have a spell book that will be created with
+him and destroyed with him. 
+
+2. Also make his learnSpell and forgetSpell functions call those of the spell book.
+
+3. The launchSpell function will have to use the SpellBook to create the spell it's attempting to launch.
 
 Add to the Warlock the following member functions:
 
