@@ -1,9 +1,50 @@
+# EXAM 05
+
 # Notes
 
+- You can use `#pragma once` instead of `#ifndef MYCLASS_HPP`, `#define MYCLASS_HPP`, `#ifndef`.
+- You don't need the `<string>` header if you use `<iostream>` for the definition of `std::string`, cause `<iostream>` already contains it.
+- Don't get confused about a const reference to an object `const MyClass &ref` and `MyClass const &ref`. That's exactly the same: it generates the same machine code. The first version is considered better practice, during the exam you are asked to write the second version, but as I said, it makes no difference.
+- You don't need to use `this->_myVar` instead of `myVar` if there is not naming conflicts.
 - The copy assignemnt operator is supposed to always return a reference.
-- the `virtaul` keyword can also be declared in tht declaration and implementatio of the virtual function in the derived class of an abstract class. But it has not to be.
-- Remember the `virtual` keywordk before destructor in abstract classes, so that the destructor is called just one time.
+- The `virtaul` keyword can also be declared in the declaration and implementation of the virtual function in the derived class of an abstract class. But it has not to be.
+- You don't need to declare and define copy constructor and copy assignment operators in the definition of the derived classes of the ASpell and ATarget abstract classes.
+- You don't need to wrap the returned variables in parenthesis.
+- Remember the `virtual` keyword in the destructor in abstract classes, so that the destructor is called just one time.
 - A pure virtual function is followed in the declaration in the abstract class by a `= 0`: `virtual void myVirtualFunction() const = 0`.
+- The check in the copy assignment operator if you are copying the same object (comparing the adresses of the objects on the right and left side of the equal) `if (this != &other)` is a good practice but not necessary. And since the objects in the exercises contains very few information we are not getting that much performance optimization.
+- The model said that the use of the copy assignment operator in the copy constructor is a bad practice for the risk of 'shallow' copies. But actually if you do it properly I think it's a good practice, since you need to make a deep copy also when you use the copy assignment operator. If you keep adding stuff to your object, it lowers the risk of forgetting to make a deep copy of objects holding adresses of other objects as values.
+- When you declare a method as `private` you don't need do implement it (if you are not using it). In general unused method, don't need to be implemented. You'll need to declare the copy constructor and copy assignment operator of Warlock as private, as requested by the subject. You don't need to implement the methods.
+- If you use Vim you'll need:
+
+  - `:%s/oldword/newword/gc`
+  - `:split` vs `:vsplit`
+  - `:term`
+  - `CTRL w w` to move between windows or `CTRL w` + `h/j/k/l`.
+
+- Compile early & often: everytime you write a new class.
+-
+- You need to use the clone() method instead of doing this
+
+```cpp
+
+ASpell *Spellbook::createSpell(std::string const &spellName)
+{
+	if (spellName == "Fwoosh")
+		return new Fwoosh();
+	else if (spellName == "Fireball")
+		return new Fireball();
+	else if (spellName == "Polymorph")
+		return new Polymorph();
+	else
+		return NULL;
+}
+
+```
+
+And the same for the createTarget in the TargetGenerator method. You'll pass grademe but not the exam, cause in the exam other spell classes are added, which will not work with this 'hard-coded' createSpell method.
+
+- You can't seg fault but you can leak. So if it doesn't bother you. You don't need to delete the memory in the heap created for spells and targets.
 
 # Notes Explained
 
@@ -93,21 +134,3 @@ ATarget* Dummy::clone() const {
     return new Dummy(*this);  // Return a new copy of the Dummy object
 }
 ```
-
-### Explanation of the `Dummy` Class Implementation:
-
-- **Constructor:** Initializes the `Dummy` with the type `"Target Practice Dummy"` by calling the `ATarget` constructor.
-- **Copy Constructor:** Calls the base class copy constructor to copy the base part of the `Dummy` object.
-- **Copy Assignment Operator:**
-  - Performs a self-assignment check (`if (this != &other)`).
-  - Calls the base class's copy assignment operator to handle copying the base part.
-- **Destructor:** Since there's no specific resource management needed in `Dummy`, the destructor is straightforward.
-- **`clone` Method:** Implements the clone functionality by returning a new `Dummy` object that is a copy of the current one, ensuring that polymorphic copying works correctly.
-
-### Summary:
-
-- **Virtual Destructors:** Ensure proper cleanup in polymorphic base classes.
-- **Const References:** Are used in copy constructors and assignment operators to prevent modification of the source object.
-- **Constructor Calls in Derived Classes:** Must call base class constructors, especially if the base class has parameterized constructors.
-- **Dummy Class:** Now fully implements the `clone` method, along with the necessary constructors and assignment operator.
-# exam05
