@@ -1,56 +1,51 @@
 # EXAM 05
 
-# Notes
+## Notes
 
-- You can use `#pragma once` instead of `#ifndef MYCLASS_HPP`, `#define MYCLASS_HPP`, `#ifndef`.
-- You don't need the `<string>` header if you use `<iostream>` for the definition of `std::string`, cause `<iostream>` already contains it.
-- Don't get confused about a const reference to an object `const MyClass &ref` and `MyClass const &ref`. That's exactly the same: it generates the same machine code. The first version is considered better practice, during the exam you are asked to write the second version, but as I said, it makes no difference.
-- You don't need to use `this->_myVar` instead of `myVar` if there is not naming conflicts.
-- The copy assignemnt operator is supposed to always return a reference.
-- The `virtaul` keyword can also be declared in the declaration and implementation of the virtual function in the derived class of an abstract class. But it has not to be.
-- You don't need to declare and define copy constructor and copy assignment operators in the definition of the derived classes of the ASpell and ATarget abstract classes.
-- You don't need to wrap the returned variables in parenthesis.
-- Remember the `virtual` keyword in the destructor in abstract classes, so that the destructor is called just one time.
-- A pure virtual function is followed in the declaration in the abstract class by a `= 0`: `virtual void myVirtualFunction() const = 0`.
-- The check in the copy assignment operator if you are copying the same object (comparing the adresses of the objects on the right and left side of the equal) `if (this != &other)` is a good practice but not necessary. And since the objects in the exercises contains very few information we are not getting that much performance optimization.
-- The model said that the use of the copy assignment operator in the copy constructor is a bad practice for the risk of 'shallow' copies. But actually if you do it properly I think it's a good practice, since you need to make a deep copy also when you use the copy assignment operator. If you keep adding stuff to your object, it lowers the risk of forgetting to make a deep copy of objects holding adresses of other objects as values.
-- When you declare a method as `private` you don't need do implement it (if you are not using it). In general unused method, don't need to be implemented. You'll need to declare the copy constructor and copy assignment operator of Warlock as private, as requested by the subject. You don't need to implement the methods.
-- If you use Vim you'll need:
+- You can use `#pragma once` instead of `#ifndef MYCLASS_HPP`, `#define MYCLASS_HPP`, etc.
+- You don't need the `<string>` header if you include `<iostream>`, as it already contains the definition for `std::string`.
+- Don't get confused between a const reference to an object `const MyClass &ref` and `MyClass const &ref`. They are the same; both generate identical machine code. The first version is considered better practice, but during the exam, you may be asked to use the second version. It makes no functional difference.
+- You don't need to use `this->_myVar` instead of `myVar` if there are no naming conflicts.
+- The copy assignment operator must always return a reference.
+- The `virtual` keyword can be used in both the declaration and implementation of a virtual function in the derived class of an abstract class, though it’s not required in both places.
+- You don't need to declare or define copy constructors and copy assignment operators in the derived classes of `ASpell` and `ATarget` abstract classes.
+- You don't need to wrap returned variables in parentheses.
+- Remember to declare the destructor in abstract classes as `virtual` to ensure it is called only once.
+- A pure virtual function is declared in an abstract class by following it with `= 0`: `virtual void myVirtualFunction() const = 0`.
+- The check in the copy assignment operator (`if (this != &other)`) is good practice but not necessary. In this case, the performance gain would be negligible as the objects in the exercises contain very little information.
+- Some believe that using the copy assignment operator inside the copy constructor is a bad practice due to the risk of shallow copies. However, if done correctly, it can be beneficial, especially when maintaining deep copies in both constructors and assignment operators. This practice helps avoid mistakes when adding members to your object.
+- Methods declared as `private` don't need to be implemented if not used. In general, unused methods don't require implementation. For the `Warlock` class, you are required to declare the copy constructor and copy assignment operator as `private`, but there's no need to implement them.
+- If you're using Vim, remember:
+  - `:%s/oldword/newword/gc` for search and replace.
+  - `:split` vs `:vsplit` to split windows.
+  - `:term` to open a terminal.
+  - `CTRL-w w` or `CTRL-w` + `h/j/k/l` to move between windows.
+- Compile early and often, especially after writing a new class.
+- You should use the `clone()` method instead of hard-coding the creation of spells like this:
 
-  - `:%s/oldword/newword/gc`
-  - `:split` vs `:vsplit`
-  - `:term`
-  - `CTRL w w` to move between windows or `CTRL w` + `h/j/k/l`.
+  ```cpp
+  ASpell *Spellbook::createSpell(std::string const &spellName)
+  {
+      if (spellName == "Fwoosh")
+          return new Fwoosh();
+      else if (spellName == "Fireball")
+          return new Fireball();
+      else if (spellName == "Polymorph")
+          return new Polymorph();
+      else
+          return NULL;
+  }
+  ```
 
-- Compile early & often: everytime you write a new class.
--
-- You need to use the clone() method instead of doing this
+  Similarly, avoid hard-coding for `createTarget` in the `TargetGenerator` method. This will pass `grademe`, but in the exam, other spell classes will be added, and the hard-coded method will fail.
 
-```cpp
+- You can leak memory but not seg fault, so unless you're concerned about memory management, you don't need to delete spells and targets created on the heap.
 
-ASpell *Spellbook::createSpell(std::string const &spellName)
-{
-	if (spellName == "Fwoosh")
-		return new Fwoosh();
-	else if (spellName == "Fireball")
-		return new Fireball();
-	else if (spellName == "Polymorph")
-		return new Polymorph();
-	else
-		return NULL;
-}
+## Notes Explained
 
-```
+### 1. **Why Do We Need the `virtual` Keyword Before the Destructor in an Abstract Class?**
 
-And the same for the createTarget in the TargetGenerator method. You'll pass grademe but not the exam, cause in the exam other spell classes are added, which will not work with this 'hard-coded' createSpell method.
-
-- You can't seg fault but you can leak. So if it doesn't bother you. You don't need to delete the memory in the heap created for spells and targets.
-
-# Notes Explained
-
-## 1. **Why Do We Need the `virtual` Keyword Before the Destructor in an Abstract Class?**
-
-- **Polymorphic Destruction:** When you have a pointer or reference to a base class pointing to a derived class object, and you delete the base class pointer, the destructor of the derived class will not be called unless the base class's destructor is marked as `virtual`.
+- **Polymorphic Destruction:** When deleting a derived class object via a base class pointer, the destructor of the derived class will not be called unless the base class destructor is marked as `virtual`.
 
   ```cpp
   class Base {
@@ -67,11 +62,11 @@ And the same for the createTarget in the TargetGenerator method. You'll pass gra
   delete obj;  // Calls both Derived and Base destructors if Base's destructor is virtual
   ```
 
-- **Reason:** The `virtual` keyword ensures that the correct destructor (both base and derived) is called when an object is deleted through a base class pointer. Without `virtual`, only the base class destructor would be called, leading to potential resource leaks if the derived class allocates resources that need to be freed in its destructor.
+- **Reason:** The `virtual` keyword ensures that both the base and derived class destructors are called when an object is deleted through a base class pointer. Without `virtual`, only the base class destructor is called, leading to resource leaks if the derived class allocates resources that need to be freed in its destructor.
 
-## 2. **Are the Objects Passed in the Copy Constructor and the Copy Assignment Operator Always Constant Objects?**
+### 2. **Are Objects Passed to the Copy Constructor and Copy Assignment Operator Always Constant?**
 
-Yes, the objects passed to the copy constructor and copy assignment operator are always passed as constant references. This is because you don't want to modify the object being copied from; you only need to read its data to initialize or assign to the new object.
+Yes, objects passed to the copy constructor and copy assignment operator are always passed as constant references to prevent modifying the original object.
 
 - **Copy Constructor:**
 
@@ -80,19 +75,20 @@ Yes, the objects passed to the copy constructor and copy assignment operator are
   ```
 
 - **Copy Assignment Operator:**
+
   ```cpp
   MyClass& operator=(const MyClass& other);  // 'other' is a constant reference
   ```
 
-### 3. **When Declaring the Constructor of a Derived Class, Do We Always Need to Declare the Constructor of the Base Class?**
+### 3. **Do We Need to Explicitly Declare the Base Class Constructor in the Derived Class?**
 
-Yes, when you define a constructor in a derived class, you typically need to call the constructor of the base class to properly initialize the base part of the object. This is done in the initialization list.
+Yes, when defining a constructor in a derived class, you must call the constructor of the base class to initialize the base part of the object. This is done in the initialization list.
 
 - **Default Constructor:**
-  If the base class has a default constructor (i.e., a constructor that takes no arguments), it is called automatically if you do not explicitly call another constructor in the initialization list.
+  If the base class has a default constructor, it is called automatically.
 
 - **Parameterized Constructor:**
-  If the base class does not have a default constructor (but has a parameterized constructor), you **must** explicitly call that constructor in the initialization list of the derived class.
+  If the base class has no default constructor, you **must** call it explicitly in the derived class's initialization list.
 
   ```cpp
   class Base {
@@ -102,33 +98,30 @@ Yes, when you define a constructor in a derived class, you typically need to cal
 
   class Derived : public Base {
   public:
-      Derived(int y) : Base(y) { /*...*/ }  // Must call Base's constructor
+      Derived(int y) : Base(y) { /*...*/ }
   };
   ```
 
 ### 4. **Finishing the Implementation of `Dummy::operator=`:**
 
-Here’s the complete implementation of the `Dummy` class:
+Here’s the full implementation of the `Dummy` class:
 
 ```cpp
 #include "Dummy.hpp"
 
-Dummy::Dummy() : ATarget("Target Practice Dummy") {
-}
+Dummy::Dummy() : ATarget("Target Practice Dummy") {}
 
-Dummy::Dummy(const Dummy &other) : ATarget(other) {
-}
+Dummy::Dummy(const Dummy &other) : ATarget(other) {}
 
 Dummy& Dummy::operator=(const Dummy &other) {
     if (this != &other) {  // Self-assignment check
         ATarget::operator=(other);  // Assign base class part
-        // Since Dummy has no additional members, nothing else needs to be done here
+        // Dummy has no additional members, so nothing else is required
     }
     return *this;
 }
 
-Dummy::~Dummy() {
-}
+Dummy::~Dummy() {}
 
 ATarget* Dummy::clone() const {
     return new Dummy(*this);  // Return a new copy of the Dummy object
